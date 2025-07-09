@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iridology Analysis System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #4facfe;
+            background: #f0f8ff;
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #4facfe;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #8e9090;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            display: none;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: #4facfe;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+        }
+
+        .visualization {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .iris-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .overall-assessment {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+            vertical-align: middle;
+        }
+
+        .assessment-content {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .assessment-title {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .assessment-status {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .regional-analysis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .region-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+        }
+
+        .region-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .region-card.attention {
+            border-left-color: #ff6b6b;
+        }
+
+        .region-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .region-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            text-transform: capitalize;
+        }
+
+        .region-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-normal {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-attention {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .region-description {
+            color: #666;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .confidence {
+            font-size: 0.9rem;
+            color: #8e9090;
+            margin-top: 10px;
+        }
+
+        .recommendations {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .recommendations h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendations li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            color: #666;
+        }
+
+        .recommendations li:last-child {
+            border-bottom: none;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #856404;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .file-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            color: #4facfe;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .regional-analysis {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-eye"></i> Iridology Analysis System</h1>
+            <p>Advanced iris pattern analysis for health insights</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <div class="upload-text">Click to upload iris image</div>
+                    <div class="upload-hint">Supports JPG, PNG, GIF, BMP (max 16MB)</div>
+                </div>
+                <input type="file" id="file-input" accept="image/*">
+                <div class="file-preview" id="file-preview"></div>
+                <button class="analyze-btn" id="analyze-btn" onclick="analyzeImage()">
+                    <i class="fas fa-search"></i> Analyze Iris
+                </button>
+            </div>
+
+            <div class="results-section">
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner"></i>
+                    <h3>Analyzing iris patterns...</h3>
+                    <p>This may take a few moments</p>
+                </div>
+
+                <div class="results" id="results">
+                    <div class="tabs">
+                        <button class="tab active" onclick="showTab('overview')">Overview</button>
+                        <button class="tab" onclick="showTab('regional')">Regional Analysis</button>
+                        <button class="tab" onclick="showTab('recommendations')">Recommendations</button>
+                    </div>
+
+                    <div class="tab-content active" id="overview-tab">
+                        <div class="visualization" id="visualization"></div>
+                        <div class="overall-assessment" id="overall-assessment"></div>
+                    </div>
+
+                    <div class="tab-content" id="regional-tab">
+                        <div class="regional-analysis" id="regional-analysis"></div>
+                    </div>
+
+                    <div class="tab-content" id="recommendations-tab">
+                        <div class="recommendations" id="recommendations"></div>
+                        <div class="disclaimer">
+                            <strong>Disclaimer:</strong> This analysis is for educational and research purposes only. It should not be used as a substitute for professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        // File input handler
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                showFilePreview(file);
+                document.getElementById('analyze-btn').style.display = 'block';
+            }
+        });
+
+        function showFilePreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewHtml = `
+                    <img src="${e.target.result}" alt="Selected image" class="preview-image">
+                    <p style="margin-top: 10px; color: #666; font-size: 0.9rem;">${file.name}</p>
+                `;
+                document.getElementById('file-preview').innerHTML = previewHtml;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function analyzeImage() {
+            if (!selectedFile) {
+                alert('Please select an image first');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('analyze-btn').disabled = true;
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('analyze-btn').disabled = false;
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'Analysis failed');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('analyze-btn').disabled = false;
+                showError('Network error: ' + error.message);
+            });
+        }
+
+        function displayResults(data) {
+            // Show visualization
+            if (data.visualization) {
+                document.getElementById('visualization').innerHTML = `
+                    <h3 style="margin-bottom: 20px; color: #333;">Iris Analysis Visualization</h3>
+                    <img src="data:image/png;base64,${data.visualization}" alt="Iris analysis" class="iris-image">
+                `;
+            }
+
+            // Show overall assessment
+            const assessment = data.overall_assessment;
+            document.getElementById('overall-assessment').innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <div class="score-circle">${assessment.overall_score}%</div>
+                    <div class="assessment-content">
+                        <div class="assessment-title">Overall Health Score</div>
+                        <div class="assessment-status">${assessment.overall_status}</div>
+                        <div style="margin-top: 10px; opacity: 0.9; font-size: 0.95rem;">
+                            ${assessment.normal_regions}/${assessment.total_regions} regions show normal patterns
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; font-size: 1rem; line-height: 1.5;">
+                    ${assessment.general_recommendation}
+                </div>
+            `;
+
+            // Show regional analysis
+            const regionalHtml = Object.entries(data.regional_analysis).map(([region, analysis]) => `
+                <div class="region-card ${analysis.status === 'Normal' ? '' : 'attention'}">
+                    <div class="region-header">
+                        <div class="region-name">
+                            <i class="fas fa-${getRegionIcon(region)}"></i> ${region}
+                        </div>
+                        <span class="region-status ${analysis.status === 'Normal' ? 'status-normal' : 'status-attention'}">
+                            ${analysis.status}
+                        </span>
+                    </div>
+                    <div class="region-description">${analysis.description}</div>
+                    <div class="confidence">Confidence: ${analysis.confidence.toFixed(1)}%</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('regional-analysis').innerHTML = regionalHtml;
+
+            // Show recommendations
+            const recommendationsHtml = `
+                <h3><i class="fas fa-lightbulb"></i> Priority Recommendations</h3>
+                <ul>
+                    ${assessment.priority_recommendations.map(rec => `<li><i class="fas fa-arrow-right" style="color: #4facfe; margin-right: 8px;"></i>${rec}</li>`).join('')}
+                </ul>
+                ${assessment.areas_of_concern.length > 0 ? `
+                    <h3 style="margin-top: 25px;"><i class="fas fa-exclamation-triangle"></i> Areas Requiring Attention</h3>
+                    <ul>
+                        ${assessment.areas_of_concern.map(area => `<li><i class="fas fa-info-circle" style="color: #ff6b6b; margin-right: 8px;"></i>${area.charAt(0).toUpperCase() + area.slice(1)}</li>`).join('')}
+                    </ul>
+                ` : ''}
+            `;
+            
+            document.getElementById('recommendations').innerHTML = recommendationsHtml;
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function getRegionIcon(region) {
+            const icons = {
+                'brain': 'brain',
+                'heart': 'heartbeat',
+                'lungs': 'lungs',
+                'liver': 'prescription-bottle',
+                'kidney': 'prescription-bottle-alt',
+                'stomach': 'apple-alt',
+                'intestines': 'dna',
+                'reproductive': 'venus-mars',
+                'spine': 'bone',
+                'circulation': 'tint'
+            };
+            return icons[region] || 'circle';
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Show selected tab
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        function showError(message) {
+            const errorHtml = `
+                <div class="error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = errorHtml;
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.querySelector('.upload-area');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '#e3f2fd';
+            uploadArea.style.borderColor = '#2196f3';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = '';
+            uploadArea.style.borderColor = '';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '';
+            uploadArea.style.borderColor = '';
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    selectedFile = file;
+                    showFilePreview(file);
+                    document.getElementById('analyze-btn').style.display = 'block';
+                } else {
+                    alert('Please select an image file');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
