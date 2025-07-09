@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iridology Analysis System - Demo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-notice {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            color: #856404;
+        }
+
+        .demo-notice h2 {
+            margin-bottom: 10px;
+            color: #b8860b;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #4facfe;
+            background: #f0f8ff;
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #4facfe;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #8e9090;
+        }
+
+        .demo-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .sample-results {
+            display: block;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            color: #4facfe;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .visualization {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sample-iris {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, #8b4513 15%, #daa520 25%, #f4a460 35%, #deb887 50%, #d2b48c 70%, #f5deb3 90%);
+            margin: 0 auto 20px;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .pupil {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #000;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .region-indicator {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            border: 2px solid white;
+        }
+
+        .overall-assessment {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+            vertical-align: middle;
+        }
+
+        .assessment-content {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .assessment-title {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .assessment-status {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .regional-analysis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .region-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+        }
+
+        .region-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .region-card.attention {
+            border-left-color: #ff6b6b;
+        }
+
+        .region-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .region-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            text-transform: capitalize;
+        }
+
+        .region-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-normal {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-attention {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .region-description {
+            color: #666;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .confidence {
+            font-size: 0.9rem;
+            color: #8e9090;
+            margin-top: 10px;
+        }
+
+        .recommendations {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .recommendations h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendations li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            color: #666;
+        }
+
+        .recommendations li:last-child {
+            border-bottom: none;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #856404;
+            text-align: center;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .regional-analysis {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-eye"></i> Iridology Analysis System</h1>
+            <p>Advanced iris pattern analysis for health insights</p>
+        </div>
+
+        <div class="demo-notice">
+            <h2><i class="fas fa-info-circle"></i> Demo Interface</h2>
+            <p>This is a standalone demo of the iridology web interface. In the full application, you would upload iris images for real AI-powered analysis.</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="upload-area">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <div class="upload-text">Click to upload iris image</div>
+                    <div class="upload-hint">Supports JPG, PNG, GIF, BMP (max 16MB)</div>
+                </div>
+                <button class="demo-btn" onclick="showSampleResults()">
+                    <i class="fas fa-play"></i> Show Sample Analysis
+                </button>
+            </div>
+
+            <div class="results-section">
+                <div class="sample-results" id="results">
+                    <div class="tabs">
+                        <button class="tab active" onclick="showTab('overview')">Overview</button>
+                        <button class="tab" onclick="showTab('regional')">Regional Analysis</button>
+                        <button class="tab" onclick="showTab('recommendations')">Recommendations</button>
+                    </div>
+
+                    <div class="tab-content active" id="overview-tab">
+                        <div class="visualization">
+                            <h3 style="margin-bottom: 20px; color: #333;">Iris Analysis Visualization</h3>
+                            <div class="sample-iris">
+                                <div class="pupil"></div>
+                                <div class="region-indicator" style="top: 15%; left: 60%;"></div>
+                                <div class="region-indicator" style="top: 25%; left: 80%;"></div>
+                                <div class="region-indicator" style="top: 50%; left: 85%;"></div>
+                                <div class="region-indicator" style="top: 75%; left: 80%;"></div>
+                                <div class="region-indicator" style="top: 85%; left: 60%;"></div>
+                                <div class="region-indicator" style="top: 85%; left: 40%;"></div>
+                                <div class="region-indicator" style="top: 75%; left: 20%;"></div>
+                                <div class="region-indicator" style="top: 50%; left: 15%;"></div>
+                                <div class="region-indicator" style="top: 25%; left: 20%;"></div>
+                                <div class="region-indicator" style="top: 15%; left: 40%;"></div>
+                            </div>
+                        </div>
+                        <div class="overall-assessment">
+                            <div class="score-circle">85%</div>
+                            <div class="assessment-content">
+                                <div class="assessment-title">Good Health Indicators</div>
+                                <div class="assessment-status">8 of 10 regions show normal patterns</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="regional-tab">
+                        <div class="regional-analysis">
+                            <div class="region-card">
+                                <div class="region-header">
+                                    <div class="region-name">Brain</div>
+                                    <div class="region-status status-normal">Normal</div>
+                                </div>
+                                <div class="region-description">Neural pathways appear clear with good circulation patterns.</div>
+                                <div class="confidence">Confidence: 92%</div>
+                            </div>
+                            <div class="region-card">
+                                <div class="region-header">
+                                    <div class="region-name">Heart</div>
+                                    <div class="region-status status-normal">Normal</div>
+                                </div>
+                                <div class="region-description">Cardiovascular indicators show good circulation and rhythm patterns.</div>
+                                <div class="confidence">Confidence: 88%</div>
+                            </div>
+                            <div class="region-card attention">
+                                <div class="region-header">
+                                    <div class="region-name">Liver</div>
+                                    <div class="region-status status-attention">Attention Needed</div>
+                                </div>
+                                <div class="region-description">Liver stress indicators. Consider reducing processed foods and increasing hydration.</div>
+                                <div class="confidence">Confidence: 78%</div>
+                            </div>
+                            <div class="region-card">
+                                <div class="region-header">
+                                    <div class="region-name">Kidney</div>
+                                    <div class="region-status status-normal">Normal</div>
+                                </div>
+                                <div class="region-description">Kidney filtration patterns show good fluid balance and processing.</div>
+                                <div class="confidence">Confidence: 85%</div>
+                            </div>
+                            <div class="region-card attention">
+                                <div class="region-header">
+                                    <div class="region-name">Digestive</div>
+                                    <div class="region-status status-attention">Attention Needed</div>
+                                </div>
+                                <div class="region-description">Digestive stress indicators. Consider smaller, more frequent meals.</div>
+                                <div class="confidence">Confidence: 74%</div>
+                            </div>
+                            <div class="region-card">
+                                <div class="region-header">
+                                    <div class="region-name">Circulation</div>
+                                    <div class="region-status status-normal">Normal</div>
+                                </div>
+                                <div class="region-description">Overall circulation patterns indicate good blood flow throughout the body.</div>
+                                <div class="confidence">Confidence: 90%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="recommendations-tab">
+                        <div class="recommendations">
+                            <h3><i class="fas fa-lightbulb"></i> Health Recommendations</h3>
+                            <ul>
+                                <li><i class="fas fa-apple-alt"></i> Increase hydration and reduce processed food intake for liver support</li>
+                                <li><i class="fas fa-running"></i> Regular exercise and movement for circulation improvement</li>
+                                <li><i class="fas fa-utensils"></i> Consider smaller, more frequent meals for digestive health</li>
+                                <li><i class="fas fa-meditation"></i> Stress reduction techniques for overall wellbeing</li>
+                                <li><i class="fas fa-bed"></i> Ensure adequate sleep (7-9 hours nightly)</li>
+                            </ul>
+                        </div>
+                        <div class="disclaimer">
+                            <strong>Disclaimer:</strong> This analysis is for educational and research purposes only. It should not be used as a substitute for professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function showSampleResults() {
+            alert('In the full application, this would upload and analyze a real iris image using AI and computer vision algorithms!');
+        }
+    </script>
+</body>
+</html>
